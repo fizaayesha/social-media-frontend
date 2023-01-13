@@ -9,10 +9,14 @@ import EmailOutlinedIcon from "@mui/icons-material/EmailOutlined";
 import PersonOutlineOutlinedIcon from "@mui/icons-material/PersonOutlineOutlined";
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 import { Link } from "react-router-dom";
-import meow from "../../Assets/meow.jpeg";
 import "./navbar.scss";
+import { useContext } from "react";
+import { DarkModeContext } from "../../context/darkModeContext";
+import { AuthContext } from "../../context/authContext";
 
-function Navbar() {
+const Navbar = () => {
+  const { toggle, darkMode } = useContext(DarkModeContext);
+  const { currentUser } = useContext(AuthContext);
   return (
     <div className="navbar">
       <div className="left">
@@ -20,7 +24,14 @@ function Navbar() {
           <span>LamaSocial</span>
         </Link>
         <HomeIcon />
-        <DarkModeOutlinedIcon />
+        {darkMode ? (
+          <WbSunnyOutlinedIcon onClick={toggle} style={{ cursor: "pointer" }} />
+        ) : (
+          <DarkModeOutlinedIcon
+            onClick={toggle}
+            style={{ cursor: "pointer" }}
+          />
+        )}
         <GridViewOutlinedIcon />
         <div className="search">
           <SearchOutlinedIcon />
@@ -32,12 +43,12 @@ function Navbar() {
         <EmailOutlinedIcon />
         <CircleNotificationsOutlinedIcon />
         <div className="user">
-          <img src={meow} alt="" />
-          <span>John Doe</span>
+          <img src={currentUser.profilePicture} alt="" />
+          <span>{currentUser.name}</span>
         </div>
       </div>
     </div>
   );
-}
+};
 
 export default Navbar;
