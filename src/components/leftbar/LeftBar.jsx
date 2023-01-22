@@ -11,8 +11,8 @@ const LeftBar = () => {
       <div className="container">
         <div className="menu">
           <div className="user">
-            <img src={currentUser.profilePicture} alt="" />
-            <span>{currentUser.currentUser.name}</span>
+            <img src={currentUser?.profilePic} alt="" />
+            <span>{currentUser?.name}</span>
           </div>
           <div className="item">
             <img src={meow} alt="" /> {/* friends */}
