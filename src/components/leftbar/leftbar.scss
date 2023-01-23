@@ -11,6 +11,10 @@
         background-color: themed("bg");
         color: themed("textColor");
 
+        @include mobile {
+            display: none;
+        }
+
         &::-webkit-scrollbar {
             display: none;
         }
@@ -64,7 +68,9 @@
                         object-fit: cover;
                     }
 
-                    span {}
+                    span {
+                        font-size: 14px;
+                    }
                 }
             }
         }
