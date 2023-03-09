@@ -7,6 +7,10 @@ import Rightbar from "./components/rightbar/Rightbar";
 import Home from "./pages/home/Home";
 import Profile from "./pages/profile/Profile";
 import {
+  QueryClient,
+  QueryClientProvider,
+} from "@tanstack/react-query";
+import {
   createBrowserRouter,
   RouterProvider,
   Outlet,
@@ -17,21 +21,24 @@ import { DarkModeContext } from "./context/darkModeContext";
 import { AuthContext } from "./context/authContext";
 function App() {
   const currentUser = useContext(AuthContext);
+  const queryClient = new QueryClient();
 
   const { darkMode } = useContext(DarkModeContext);
 
   const Layout = () => {
     return (
-      <div className={`theme-${darkMode ? "dark" : "light"}`}>
-        <Navbar /> 
-        <div style={{ display: "flex" }}>
-          <LeftBar />
-          <div style={{ flex: 6 }}>
-            <Outlet />
+      <QueryClientProvider client={queryClient}>
+        <div className={`theme-${darkMode ? "dark" : "light"}`}>
+          <Navbar />
+          <div style={{ display: "flex" }}>
+            <LeftBar />
+            <div style={{ flex: 6 }}>
+              <Outlet />
+            </div>
+            <Rightbar />
           </div>
-          <Rightbar />
         </div>
-      </div>
+      </QueryClientProvider>
     );
   };
   const Protected = ({ children }) => {

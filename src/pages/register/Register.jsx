@@ -1,7 +1,7 @@
 import { useState } from "react";
 import "./register.scss";
 import axios from "axios";
-import { Link } from "react-router-dom";
+import { Link} from "react-router-dom";
 const Register = () => {
   const [inputs, setInputs] = useState({
     username: "",
@@ -9,6 +9,7 @@ const Register = () => {
     password: "",
     name: "",
   });
+  // const navigate = useNavigate();
   // const [err, setErr] = useState(null);
   const handleChange = (e) => {
     setInputs((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -20,6 +21,7 @@ const Register = () => {
         "http://localhost:8800/api/auth/register",
         inputs
       );
+      // navigate("/");
       console.log(res.data);
     } catch (err) {
       // setErr(err);

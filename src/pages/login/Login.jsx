@@ -1,6 +1,7 @@
 import "./login.scss";
 import { Link } from "react-router-dom";
 import { useContext, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../context/authContext";
 const Login = () => {
   const [inputs, setInputs] = useState({
@@ -9,6 +10,7 @@ const Login = () => {
     // name: "",
   });
   // const [err, setErr] = useState(null);
+  const navigate = useNavigate();
   const handleChange = (e) => {
     setInputs((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
@@ -18,6 +20,7 @@ const Login = () => {
     try {
       await login(inputs);
       // console.log(res.data);
+      navigate("/");
     } catch (err) {
       // setErr(err.response.data);
       console.log(err);
