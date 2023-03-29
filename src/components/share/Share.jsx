@@ -5,16 +5,26 @@ import { AuthContext } from "../../context/authContext";
 import { makeRequest } from "../../axios";
 import "./share.scss";
 import {
-  useQuery,
+  // useQuery,
   useMutation,
   useQueryClient,
-  QueryClient,
-  QueryClientProvider,
+  // QueryClient,
+  // QueryClientProvider,
 } from "@tanstack/react-query";
 
 const Share = () => {
   const [file, setFile] = useState(null);
   const [descrip, setDescrip] = useState("");
+  const upload = async () => {
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const res = await makeRequest.post("/upload", formData);
+      return res.data;
+    } catch (error) {
+      console.log(error);
+    }
+  };
   const { currentUser } = useContext(AuthContext);
   const queryClient = useQueryClient();
   const mutation = useMutation(
@@ -27,26 +37,16 @@ const Share = () => {
       },
     }
   );
-  //   const upload = async () => {
-  //     try {
-  //       const formData = new FormData();
-  //       formData.append("file", file);
-  //       const res = await makeRequest.post("/upload", formData);
-  //       return res.data;
-  //     } catch (error) {
-  //       console.log(error);
-  //     }
-  //   };
   const handleClick = async (e) => {
     e.preventDefault();
-    // let imgUrl = "";
-    // if (file) {
-    //   imgUrl = await upload();
-    // }
-    // mutation.mutate({ descrip, img: imgUrl });
-    // setFile(null);
-    mutation.mutate({ descrip });
-    // setDescrip("");
+    let imgUrl = "";
+    if (file) {
+      imgUrl = await upload();
+    }
+    mutation.mutate({ descrip, img: imgUrl });
+    setDescrip("");
+    setFile(null);
+    // mutation.mutate({ descrip });
   };
   const handleChange = async (e) => {
     let descrip = e.target.value;
@@ -57,16 +57,24 @@ const Share = () => {
     <div className="share">
       <div className="container">
         <div className="top">
-          <img src={currentUser?.profilePic} alt="" />
-          <input
-            type="text"
-            placeholder={`What's on your mind ${currentUser?.name}?`}
-            // onChange={(e) => setDescrip[e.target.value]}
-            onChange={handleChange}
-            value={descrip}
-          />
+          <div className="left">
+            <img src={currentUser?.profilePic} alt="" />
+            <input
+              type="text"
+              placeholder={`What's on your mind ${currentUser?.name}?`}
+              // onChange={(e) => setDescrip[e.target.value]}
+              onChange={handleChange}
+              value={descrip}
+            />
+          </div>
+          <div className="right">
+            {file && (
+              <img className="file" alt="" src={URL.createObjectURL(file)} />
+            )}
+          </div>
         </div>
         <hr />
+
         <div className="bottom">
           <div className="left">
             <input
@@ -100,3 +108,4 @@ const Share = () => {
 };
 
 export default Share;
+ 

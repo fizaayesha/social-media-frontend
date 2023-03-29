@@ -1,43 +1,74 @@
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import "./comments.scss";
 import { AuthContext } from "../../context/authContext";
-const Comments = () => {
+import { makeRequest } from "../../axios";
+import {
+  useQuery,
+  useMutation,
+  useQueryClient,
+  // QueryClient,
+  // QueryClientProvider,
+} from "@tanstack/react-query";
+import moment from "moment";
+const Comments = ({ postId }) => {
+  const [descrip, setDescrip] = useState("");
   const { currentUser } = useContext(AuthContext);
-  const comments = [
-    {
-      id: 1,
-      desc: "Lorem ipsum dash lorem ipsum adsh whsta is this behaviour sir i am not getting anuthing",
-      name: "Ayess jain",
-      useId: 1,
-      profilePic:
-        "https://images.ctfassets.net/hrltx12pl8hq/6czYVzKLCtCAjcfDc6Q9h2/b268534ee924bcd993e530919d5f96d1/Holiday-Look-Book_Thumb.jpg?fit=fill&w=480&h=270",
+  const fetchPosts = async () => {
+    const response = await makeRequest.get("/comments?postId=" + postId);
+    return response.data;
+  };
+  const { data, isLoading, error } = useQuery(["comments"], fetchPosts);
+  const queryClient = useQueryClient();
+  const mutation = useMutation(
+    (newComment) => {
+      return makeRequest.post("/comments", newComment);
     },
     {
-      id: 2,
-      desc: "Lorem ipsum dash lorem ipsum adsh whsta is this behaviour sir i am not getting anuthing",
-      name: "Lisa desuza",
-      useId: 2,
-      profilePic:
-        "https://images.ctfassets.net/hrltx12pl8hq/6czYVzKLCtCAjcfDc6Q9h2/b268534ee924bcd993e530919d5f96d1/Holiday-Look-Book_Thumb.jpg?fit=fill&w=480&h=270",
-    },
-  ];
+      onSuccess: () => {
+        queryClient.invalidateQueries(["comments"]);
+      },
+    }
+  );
+  const handleClick = async (e) => {
+    e.preventDefault();
+    mutation.mutate({ descrip, postId });
+    // mutation.mutate({ descrip });
+    setDescrip("");
+  };
+  const handleChange = async (e) => {
+    let descrip = e.target.value;
+    setDescrip(descrip);
+  };
   return (
     <div className="comments">
       <div className="write">
-        <img src={currentUser?.profilePic} alt="" />
-        <input type="text" placeholder="write a comment" />
-        <button>Send</button>
+      <img src={"/upload/" + currentUser.profilePic} alt="" />
+        <input
+          type="text"
+          placeholder="write a comment"
+          value={descrip}
+          onChange={handleChange}
+        />
+        <button onClick={handleClick} >Send</button>
       </div>
-      {comments.map((comment) => (
-        <div className="comment">
-          <img src={comment.profilePic} alt="" />
-          <div className="info">
-            <span>{comment.name}</span>
-            <p>{comment.desc}</p>
-          </div>
-          <span className="data">1 hour ago</span>
-        </div>
-      ))}
+      {
+      error
+      ?
+      "Something went wrong":
+      isLoading
+        ? "Loading"
+        : data.map((comment) => (
+            <div className="comment">
+              <img src={comment?.profilePic} alt="" />
+              <div className="info">
+                <span>{comment?.name}</span>
+                <p>{comment?.descrip}</p>
+              </div>
+              <span className="date">
+                {moment(comment?.createdAt).fromNow}
+              </span>
+            </div>
+          ))}
     </div>
   );
 };
