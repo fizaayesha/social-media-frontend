@@ -26,9 +26,50 @@ const Profile = () => {
       return res.data;
     })
   );
-  const handleFollow = () => {
 
+  const { isLoading: rIsLoading, data: relationshipData } = useQuery(
+    ["relationships"],
+    () =>
+      makeRequest.get("/relationships?followedUserId=" + userId).then((res) => {
+        return res.data;
+      })
+  );
+
+
+
+
+  const queryClient = useQueryClient();
+
+  const mutation = useMutation(
+    (following) => {
+      if (following) return makeRequest.delete("/relationships?userId=" + userId);
+      return makeRequest.post("/relationships", { userId});
+    },
+    {
+      onSuccess: () => {
+        // Invalidate and refetch
+        queryClient.invalidateQueries(["relationships"]);
+      },
+    }
+  );
+  const deleteMutation = useMutation(
+    (postId) => {
+      return makeRequest.delete("/posts/" + postId);
+    },
+    {
+      onSuccess: () => {
+        // Invalidate and refetch
+        queryClient.invalidateQueries(["posts"]);
+      },
+    }
+  );
+
+  const handleFollow = () => {
+    mutation.mutate(data.includes(currentUser.id));
   };
+
+
+
   // console.log(typeof currentUser.id);
   return (
     <div className="profile">
@@ -70,10 +111,16 @@ const Profile = () => {
                     <LanguageIcon />
                     <span>{data.website}</span>
                   </div>
-                  {userId === currentUser.id ? (
+                  {rIsLoading ? (
+                    "loading"
+                  ) : userId === currentUser.id ? (
                     <button>Update</button>
                   ) : (
-                    <button onClick={handleFollow}>Follow</button>
+                    <button onClick={handleFollow}>
+                      {relationshipData.includes(currentUser.id)
+                        ? "Following"
+                        : "Follow"}
+                    </button>
                   )}
                 </div>
               </div>
@@ -85,7 +132,7 @@ const Profile = () => {
           </div>{" "}
         </>
       )}
-      <Posts />
+      <Posts userId={userId} />
     </div>
   );
 };
