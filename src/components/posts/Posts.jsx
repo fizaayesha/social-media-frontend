@@ -3,20 +3,22 @@ import Post from "../post/Post";
 import "./posts.scss";
 import { useQuery } from "@tanstack/react-query";
 import { makeRequest } from "../../axios";
-const Posts = ({userId}) => {
+const Posts = ({ userId }) => {
   const fetchPosts = async () => {
-    const response = await makeRequest.get("/posts?userId="+userId);
+    const response = await makeRequest.get("/posts?userId=" + userId);
     return response.data;
   };
-  const { data, isLoading, error } = useQuery(['posts'], fetchPosts);
+  // http://localhost:8800/api/posts?userId=14
+  const { data, isLoading, error } = useQuery(["posts"], fetchPosts);
   // const { isLoading, error, data } = useQuery(["posts"], () => {
   //   makeRequest.get("/posts").then((res) => {
-  //     return res.data;
-  //   });
+  // return res.data;
+  // });
 
   // if (isLoading) return "Loading...";
   // if (error) return "An error has occurred: " + error.message;
-  // };
+  // });
+
   // console.log(data);
   // const posts = [
   //   {
