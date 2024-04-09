@@ -1,70 +1,62 @@
-import React from "react";
-import Image from "../../Assets/loginbg.jpeg";
-import { useState, useContext } from "react";
-import { AuthContext } from "../../context/authContext";
-import { makeRequest } from "../../axios";
 import "./share.scss";
-import {
-  // useQuery,
-  useMutation,
-  useQueryClient,
-  // QueryClient,
-  // QueryClientProvider,
-} from "@tanstack/react-query";
-
+import Image from "../../Assets/meow.jpeg";
+import Map from "../../Assets/meow.jpeg";
+import Friend from "../../Assets/meow.jpeg";
+import { useContext, useState } from "react";
+import { AuthContext } from "../../context/authContext";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { makeRequest } from "../../axios";
 const Share = () => {
   const [file, setFile] = useState(null);
-  const [descrip, setDescrip] = useState("");
+  const [desc, setDesc] = useState("");
+
   const upload = async () => {
     try {
       const formData = new FormData();
       formData.append("file", file);
       const res = await makeRequest.post("/upload", formData);
       return res.data;
-    } catch (error) {
-      console.log(error);
+    } catch (err) {
+      console.log(err);
     }
   };
+
   const { currentUser } = useContext(AuthContext);
+
   const queryClient = useQueryClient();
+
   const mutation = useMutation(
     (newPost) => {
       return makeRequest.post("/posts", newPost);
     },
     {
       onSuccess: () => {
+        // Invalidate and refetch
         queryClient.invalidateQueries(["posts"]);
       },
     }
   );
+
   const handleClick = async (e) => {
     e.preventDefault();
     let imgUrl = "";
-    if (file) {
-      imgUrl = await upload();
-    }
-    mutation.mutate({ descrip, img: imgUrl });
-    setDescrip("");
+    if (file) imgUrl = await upload();
+    mutation.mutate({ desc, img: imgUrl });
+    setDesc("");
     setFile(null);
-    // mutation.mutate({ descrip });
   };
-  const handleChange = async (e) => {
-    let descrip = e.target.value;
-    setDescrip(descrip);
-  };
-  //  <input type = "text" onChange = {handleChange} value ={value}/>
+
   return (
     <div className="share">
       <div className="container">
         <div className="top">
           <div className="left">
-            <img src={currentUser?.profilePic} alt="" />
+            <img src={"/upload/" + currentUser?.profilePic} alt="" />
             <input
               type="text"
               placeholder={`What's on your mind ${currentUser?.name}?`}
-              // onChange={(e) => setDescrip[e.target.value]}
-              onChange={handleChange}
-              value={descrip}
+              onChange={(e) => setDesc(e.target.value)}
+              value={desc}
             />
           </div>
           <div className="right">
@@ -74,14 +66,13 @@ const Share = () => {
           </div>
         </div>
         <hr />
-
         <div className="bottom">
           <div className="left">
             <input
               type="file"
               id="file"
               style={{ display: "none" }}
-              onChange={(e) => setFile[e.target.files[0]]}
+              onChange={(e) => setFile(e.target.files[0])}
             />
             <label htmlFor="file">
               <div className="item">
@@ -90,11 +81,11 @@ const Share = () => {
               </div>
             </label>
             <div className="item">
-              <img src={Image} alt="" />
+              <img src={Map} alt="" />
               <span>Add Place</span>
             </div>
             <div className="item">
-              <img src={Image} alt="" />
+              <img src={Friend} alt="" />
               <span>Tag Friends</span>
             </div>
           </div>
@@ -108,4 +99,3 @@ const Share = () => {
 };
 
 export default Share;
- 

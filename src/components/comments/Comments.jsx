@@ -11,61 +11,59 @@ import {
 } from "@tanstack/react-query";
 import moment from "moment";
 const Comments = ({ postId }) => {
-  const [descrip, setDescrip] = useState("");
+  const [desc, setDesc] = useState("");
   const { currentUser } = useContext(AuthContext);
-  const fetchPosts = async () => {
-    const response = await makeRequest.get("/comments?postId=" + postId);
-    return response.data;
-  };
-  const { data, isLoading, error } = useQuery(["comments"], fetchPosts);
+
+  const { isLoading, error, data } = useQuery(["comments"], () =>
+    makeRequest.get("/comments?postId=" + postId).then((res) => {
+      return res.data;
+    })
+  );
+
   const queryClient = useQueryClient();
+
   const mutation = useMutation(
     (newComment) => {
       return makeRequest.post("/comments", newComment);
     },
     {
       onSuccess: () => {
+        // Invalidate and refetch
         queryClient.invalidateQueries(["comments"]);
       },
     }
   );
+
   const handleClick = async (e) => {
     e.preventDefault();
-    mutation.mutate({ descrip, postId });
-    // mutation.mutate({ descrip });
-    setDescrip("");
-  };
-  const handleChange = async (e) => {
-    let descrip = e.target.value;
-    setDescrip(descrip);
+    mutation.mutate({ desc, postId });
+    setDesc("");
   };
   return (
     <div className="comments">
       <div className="write">
-      <img src={"/upload/" + currentUser.profilePic} alt="" />
+        <img src={"/upload/" + currentUser?.profilePic} alt="" />
         <input
           type="text"
           placeholder="write a comment"
-          value={descrip}
-          onChange={handleChange}
+          value={desc}
+          onChange={(e) => setDesc(e.target.value)}
         />
-        <button onClick={handleClick} >Send</button>
+        <button onClick={handleClick}>Send</button>
       </div>
-      {
-      error
-      ?
-      "Something went wrong":
-      isLoading
+      {error
+        ? "Something went wrong"
+        : isLoading
         ? "Loading"
         : data.map((comment) => (
             <div className="comment">
-              <img src={comment?.profilePic} alt="" />
+              <img src={"/upload/" + comment.profilePic} alt="" />
               <div className="info">
-                <span>{comment?.name}</span>
-                <p>{comment?.descrip}</p>
+                <span>{comment.name}</span>
+                <p>{comment.desc}</p>
               </div>
               <span className="date">
-                {moment(comment?.createdAt).fromNow}
+                {moment(comment.createdAt).fromNow()}
               </span>
             </div>
           ))}
